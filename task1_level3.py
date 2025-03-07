@@ -21,14 +21,12 @@ def find_longest_peak(lst):
             if idx == len(lst) - 1 and decreasing:
                 end = idx
                 if peak - start >= end - peak:
-                    start = peak - (end - peak)
                     _len = end - start + 1
                     found[start] = _len
                     decreasing = False
                     start = idx - 1
                     peak = 0
                 else:
-                    end = peak + (peak - start)
                     _len = end - start + 1
                     found[start] = _len
                     decreasing = False
@@ -38,14 +36,12 @@ def find_longest_peak(lst):
             if decreasing and increasing:
                 end = idx - 1
                 if peak - start >= end - peak:
-                    start = peak - (end - peak)
                     _len = end - start + 1
                     found[start] = _len
                     decreasing = False
                     start = idx - 1
                     peak = 0
                 else:
-                    end = peak + (peak - start)
                     _len = end - start + 1
                     found[start] = _len
                     decreasing = False
