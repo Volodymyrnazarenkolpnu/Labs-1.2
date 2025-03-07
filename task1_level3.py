@@ -1,15 +1,13 @@
 """lab1, task1, level3, variant3"""
-import unittest
 import random
 
-lst = []
+lst1 = []
 for i in range(random.randint(12,18)):
-    lst.append(random.randint(0,100))
-print(lst)
+    lst1.append(random.randint(0,100))
+print(lst1)
 def find_longest_peak(lst):
     """checks for longest peak"""
     found = {0:0,}
-    working = True
     end = 1
     increasing = False
     decreasing = False
@@ -68,5 +66,4 @@ def find_longest_peak(lst):
     max_length = max(_mxl)
     max_length_start = _ell[_mxl.index(max(_mxl))]
     print(lst[max_length_start:max_length_start + max_length])
-find_longest_peak(lst)
-
+    return lst[max_length_start:max_length_start + max_length]
