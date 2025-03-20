@@ -1,12 +1,12 @@
 """lab2, task1, level3, variant3"""
 import random
-# N = random.randint(2,100)
-# free_spaces = []
-# for sec in range(N):
-#     xN = random.randint(0, 1000)
-#     if not xN in free_spaces:
-#         free_spaces.append(xN)
-# c = random.randint(0, N)
+N = random.randint(2,100000)
+free_spaces = []
+for sec in range(N):
+    xN = random.randint(0, 1000000000)
+    if not xN in free_spaces:
+        free_spaces.append(xN)
+c = random.randint(0, N)
 # print(N)
 # print(free_spaces)
 # print(c)
@@ -19,23 +19,34 @@ def find_min_spaces(lst: list, cw):
     lst.pop(0)
     smallest = 0
     overflow = False
-    for i in range(2,max(lst)):
+    iters = 0
+    left = 2
+    right = max(lst)
+    found = False
+    while not found:
+        overflow = False
+        curr = (left + right)//2
+        if abs(curr - left) <= 1:
+            smallest = curr
+            found = True
         _temp = lst[:]
         pos = start
-        for cownum in range(1,cows):
-            if len(_temp) == 0:
-                overflow = True
-            for _idx2 in _temp:
-                if _idx2 >= pos + i:
-                    pos = _idx2
-                    _temp = _temp[_temp.index(_idx2) + 1:]
+        cow = 1
+        for i in range(1,len(lst)):
+            iters += 1
+            print(iters)
+            if _temp[i] - pos >= curr:
+                pos = _temp[i]
+                if cow == cows:
                     break
-                elif lst.index(_idx2) == len(lst) - 1:
-                    overflow = True
+            elif i == len(lst) - 1:
+                overflow = True
             if overflow:
                 break
+            cow += 1
         if overflow:
-            smallest = i - 1
-            break
+            right = curr
+        else:
+            left = curr
     return smallest
-print(find_min_spaces([2,6,8,10],4))
+print(find_min_spaces(free_spaces, c))
