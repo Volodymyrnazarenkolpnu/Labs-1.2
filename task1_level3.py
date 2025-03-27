@@ -10,9 +10,26 @@ c = random.randint(0, N)
 # print(N)
 # print(free_spaces)
 # print(c)
+def quicksort(lst2):
+    less = []
+    eq = []
+    more = []
+
+    if len(lst2) > 1:
+        p = lst2[0]
+        for x in lst2:
+            if x < p:
+                less.append(x)
+            elif x == p:
+                eq.append(x)
+            elif x > p:
+                more.append(x)
+        return quicksort(less) + eq + quicksort(more)
+    else:
+        return lst2
 def find_min_spaces(lst: list, cw):
     """finds a smallest amount of spaces between cows"""
-    lst.sort()
+    lst = quicksort(lst)
     cows = cw
     pos = lst[0]
     start = lst[0]
@@ -33,8 +50,6 @@ def find_min_spaces(lst: list, cw):
         pos = start
         cow = 1
         for i in range(1,len(lst)):
-            iters += 1
-            print(iters)
             if _temp[i] - pos >= curr:
                 pos = _temp[i]
                 if cow == cows:
@@ -44,6 +59,8 @@ def find_min_spaces(lst: list, cw):
             if overflow:
                 break
             cow += 1
+        iters += 1
+        print(iters)
         if overflow:
             right = curr
         else:
