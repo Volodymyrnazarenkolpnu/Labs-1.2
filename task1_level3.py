@@ -7,21 +7,6 @@ class Node():
         self.left = left
         self.right = right
 
-def find_parent(root, data1, data2):
-    """finding a lowest node that contains both gicen nodes"""
-    if root is None:
-        return None
-    if root.value == data1 or root.value == data2:
-        return root
-    left_find = find_parent(root.left, data1, data2)
-    right_find = find_parent(root.right, data1, data2)
-    if left_find and right_find:
-        return root
-    if left_find:
-        return left_find
-    else:
-        return right_find
-
 def find_max_distance(root):
     ends = []
     def inOrder(root):
@@ -74,6 +59,8 @@ root.left.left = Node(7)
 root.left.right = Node(9)
 root.right.left = Node(4)
 root.right.left.right = Node(5)
+root.right.left.right.left = Node(6)
+root.right.left.right.right = Node(4)
 root.right.right = Node(6)
 root.left.left.left = Node(8)
 root.left.right.left = Node(1)
