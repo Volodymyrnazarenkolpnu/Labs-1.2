@@ -239,3 +239,4 @@ def mainloop():
             root = import_tree()
             traversal_list = [root]
             print_tree(traversal_list[-1])
+mainloop()
