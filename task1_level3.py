@@ -2,6 +2,7 @@
 import json
 import random
 import math
+import copy
 from tkinter import *
 class Graph():
     """graph def class"""
@@ -62,47 +63,48 @@ def the_algorythm(towns, gas_storages, connections, graph):
                 not_found[idx][1].append(town)
     return not_found
 
-def game():
-    """func for game"""
-    print("Please enter Seed (ENTER for random):")
-    seed = input()
-    if seed == "":
-        seed = random.randint(0, 9999999999)
-    seed_txt = str(seed)
-    print("Seed:" + seed_txt)
+def generate_towns(town_num, town_con_max, storage_num, seed_str):
+    """generate towns"""
     file = open("config.txt", "r")
     names = json.loads(file.readline())
+    names_copy = names[:]
     town_list = []
     storage_list = []
     connection_list = []
     game_graph = Graph()
-    #randomisation
-    for t in range(8):
-        _town_rng = seed_txt[(0 + t if 0 + t < 10 else 0 + t - 10):(3 + t) - 10 * int(str(1000 + t)[2]) if 3 + t < 10 or t % 10 < 8 else 10] + (seed_txt[0:3 + t - 10] if 3 + t > 10 and t < 10 else "")
+    for t in range(town_num):
+        if range(town_num).index(t) % 10 <= 7:
+            _town_rng = int(seed_str[t % 10:(t % 10 + 3)])
+        else:
+            _town_rng = int(seed_str[t % 10:10] + seed_str[0:t + 3 % 10])
         _town_rng = math.floor(int(_town_rng) * (len(names)/1000))
-        town_name = names[int(_town_rng)]
-        names.remove(town_name)
+        town_name = names_copy[int(_town_rng)]
+        names_copy.remove(town_name)
         town = game_graph.add_point(town_name)
         town_list.append(town.value)
-    for s in range(4):
+    for s in range(storage_num):
         storage_name = "Сховище_" + str(s + 1)
         storage = game_graph.add_point(storage_name)
         storage_list.append(storage.value)
     for s in storage_list:
-        n = 1
-        town_list_copy = town_list[:]
-        for town in range(n):
-            _idx = math.floor(int(seed_txt[range(n).index(n - 1) + storage_list.index(s):range(n).index(n - 1) + 2 + storage_list.index(s)]) * (len(town_list_copy) / 100))
-            town = town_list_copy[_idx]
-            town_list_copy.remove(town)
-            game_graph.add_edge(s, town)
-            connection_list.append([s, town])
+        _idx = math.floor(int(seed_str[storage_list.index(s) % 10] + seed_str[storage_list.index(s) // 10]) * len(town_list) / 100)
+        town = town_list[_idx]
+        game_graph.add_edge(s, town)
+        connection_list.append([s, town])
     for t in town_list:
-        n = math.floor(int(seed_txt[town_list.index(t) % 10]) / 5) + 1
+        _i1 = (town_list.index(t) + int(seed_str[1])) % 10
+        _i2 = ((town_list.index(t) // 10) + int(seed_str[2])) % 10
+        _i3 = (town_list.index(t) // 100 + int(seed_str[3])) % 10
+        _town_rng = seed_str[_i1] + seed_str[_i2] + seed_str[_i3]
+        _town_rng = math.floor(int(_town_rng) * (town_con_max / 1000)) + 1
         town_list_copy = town_list[:]
         town_list_copy.remove(t)
-        for town in range(n):
-            _idx = math.floor(int(seed_txt[(int(seed_txt[8]) * range(n).index(n - 1)) // 10]) * (len(town_list_copy) / 100))
+        for town in range(_town_rng):
+            _i4 = (town_list.index(t) + int(seed_str[4])) % 10
+            _i5 = ((town_list.index(t) // 10) + int(seed_str[5])) % 10
+            _i6 = (town_list.index(t) // 100 + int(seed_str[6])) % 10
+            _idx = seed_str[_i4] + seed_str[_i5] + seed_str[_i6]
+            _idx = math.floor(int(_idx) * (len(town_list_copy) / 1000))
             town = town_list_copy[_idx]
             con_list = game_graph.points[town].connections[:]
             t_con_list= []
@@ -113,83 +115,165 @@ def game():
                 if t in t_con_list:
                     _idx+=1
                     if _idx >= len(town_list_copy):
-                        _idx -= 8
-                        town = town_list_copy[_idx]
-                        con_list = game_graph.points[town].connections[:]
-                        t_con_list= []
+                        _idx = 0
+                    town = town_list_copy[_idx]
+                    con_list = game_graph.points[town].connections[:]
+                    t_con_list= []
                 else:
                     satisfied = True
             town_list_copy.remove(town)
             game_graph.add_edge(t, town)
             connection_list.append([t, town])
-    #initialization
-    print("Towns: ")
-    line = ""
-    for el in town_list:
-        line += el + ", "
-    print(line)
-    not_found = the_algorythm(town_list, storage_list, connection_list, game_graph)
+    return (town_list, storage_list, connection_list, game_graph)
 
-    for el in not_found:
-        print("There is no access from " + el[0] + " to:")
-        line = ""
-        for town in el[1]:
-            line += town + ", "
-        print(line)
-    _count = 0
-
-    print("Choose 5 towns to view")
-    while _count < 5:
-        inp = input()
-        if inp == "skip":
-            break
-        if inp in game_graph.points:
-            point = game_graph.points[inp]
-            for con in point.connections:
-                if con[1] == "f":
-                    print("-" + con[0])
-            _count += 1
-        else:
-            print("try again")
-    print("choose 1 town to sabotage")
-    del_list = []
-    while True:
-        inp = input()
-        if inp in game_graph.points:
-            point = game_graph.points[inp]
-            for con in point.connections:
-                for con_in in game_graph.points[con[0]].connections:
-                    if con_in[0] == point:
-                        del_list.append([con[0], con_in])
-            point.connections = []
-            break
-        else:
-            print("try again")
-    for el in del_list:
-        el[0].connections.remove(el[1])
-    for el in connections:
-        if el[0] == point or el[1] == point:
-            connections.remove(el)
-    not_found_2 = the_algorythm(town_list, storage_list, connection_list, game_graph)
-    for el in not_found_2:
-        print("There is no access from " + el[0] + " to:")
-        line = ""
-        for town in el[1]:
-            line += town + ", "
-        print(line)
-    comparison_list = []
-    for el in not_found:
-        comparison_list.append(el[1])
-    for el in not_found_2:
-        idx = not_found_2.index(el)
-        comparison_list[idx] = len(el[1]) - len(comparison_list[idx])
-    summ = 0
-    for el in comparison_list:
-        summ += el
-    summ -= 4
-    if summ < 0:
+def check_max_points(t_list, stor_list, con_list, graph, not_found_list):
+    """chech hom many points seed can score at max"""
+    con_list_copy = con_list[:]
+    points = []
+    for town in t_list:
+        del_list = []
+        test_graph = copy.deepcopy(graph)
+        point = test_graph.points[town]
+        for con in point.connections:
+            for con_in in test_graph.points[con[0]].connections:
+                if con_in[0] == point:
+                    del_list.append([con[0], con_in])
+        point.connections = []
+        for el in del_list:
+            el[0].connections.remove(el[1])
+        for el in con_list_copy:
+            if el[0] == point or el[1] == point:
+                con_list_copy.remove(el)
+        not_found_list_2 = the_algorythm(t_list, stor_list, con_list_copy, test_graph)
+        comparison_list = []
         summ = 0
-    print(str(summ) + " points")
+        for el in not_found_list:
+            comparison_list.append(el[1])
+        for el in not_found_list_2:
+            idx = not_found_list_2.index(el)
+            if town not in not_found_list[idx][1] and town in not_found_list_2[idx][1]:
+                summ -= 1
+            comparison_list[idx] = len(el[1]) - len(comparison_list[idx])
+        for el in comparison_list:
+            summ += el
+        points.append(summ)
+    return max(points)
+
+
+def game():
+    """func for game"""
+    lost = False
+    level = 1
+    game_points = 0
+    max_town_cons = 2
+    print("Select game mode (any string for custom mode)")
+    mode = input()
+    while not lost:
+        if mode != "rogue":
+            lost = True
+        if lost:
+            print("Please enter Seed (ENTER for random):")
+            seed = input()
+            if seed == "":
+                seed = random.randint(0, 9999999999)
+        else:
+            seed = random.randint(0, 9999999999)
+        seed_txt = str(seed)
+        if len(seed_txt) < 10:
+            for i in range(10 - len(seed_txt)):
+                seed_txt = "0" + seed_txt
+        print("Seed:" + seed_txt)
+        #randomisation
+        towns = math.floor(0.24 * level + 8)
+        views = math.floor(0.2 * level + 6)
+        storages = math.floor(0.15 * level + 4)
+        min_percent = math.floor(0.3 * level) * 10
+        if min_percent > 50:
+            min_percent = 50
+        town_list, storage_list, connection_list, game_graph = generate_towns(towns, max_town_cons, storages, seed_txt)
+        #initialization
+        print("Towns: ")
+        line = ""
+        for el in town_list:
+            line += el + ", "
+        print(line)
+        not_found = the_algorythm(town_list, storage_list, connection_list, game_graph)
+        maxx = check_max_points(town_list, storage_list, connection_list, game_graph, not_found)
+        if not lost:
+            print("Level:" + str(level))
+            print("Current threshold:" + str(min_percent) + "%")
+        print("Maximum amount of points:" + str(maxx))
+        for el in not_found:
+            print("There is no access from " + el[0] + " to:")
+            line = ""
+            for town in el[1]:
+                line += town + ", "
+            print(line)
+        _count = 0
+
+        print(f"Choose {views} towns to view")
+        while _count < views:
+            inp = input()
+            if inp == "skip" or inp == "скіп":
+                break
+            if inp in game_graph.points:
+                point = game_graph.points[inp]
+                for con in point.connections:
+                    if con[1] == "f":
+                        print("-" + con[0])
+                _count += 1
+            else:
+                print("try again")
+        print("choose 1 town to sabotage")
+        del_list = []
+        while True:
+            inp = input()
+            if inp in game_graph.points:
+                point = game_graph.points[inp]
+                for con in point.connections:
+                    for con_in in game_graph.points[con[0]].connections:
+                        if con_in[0] == point:
+                            del_list.append([con[0], con_in])
+                point.connections = []
+                break
+            else:
+                print("try again")
+        for el in del_list:
+            el[0].connections.remove(el[1])
+        for el in connections:
+            if el[0] == point or el[1] == point:
+                connections.remove(el)
+        not_found_2 = the_algorythm(town_list, storage_list, connection_list, game_graph)
+        for el in not_found_2:
+            print("There is no access from " + el[0] + " to:")
+            line = ""
+            for town in el[1]:
+                line += town + ", "
+            print(line)
+        comparison_list = []
+        summ = 0
+        for el in not_found:
+            comparison_list.append(el[1])
+        for el in not_found_2:
+            idx = not_found_2.index(el)
+            if inp not in not_found[idx][1] and inp in not_found_2[idx][1]:
+                summ -= 1
+            comparison_list[idx] = len(el[1]) - len(comparison_list[idx])
+        for el in comparison_list:
+            summ += el
+        print(str(summ) + " points out of " + str(maxx) + f"({round((summ / maxx) * 100, 3)}%)")
+        if not lost:
+            print("Current threshold:" + str(min_percent) + "%")
+            if (summ / maxx) * 100 >= min_percent:
+                print("You passed!")
+                print(f"Gained {summ} points. Current points:{game_points}")
+                level += 1
+            else:
+                print("Not enough!")
+        game_points += summ
+        wait = input()
+    if mode == "rogue":
+        print("Run lost! Score:" + str(game_points))
 
 
 #graph
