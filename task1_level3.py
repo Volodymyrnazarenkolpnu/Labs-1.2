@@ -78,7 +78,7 @@ def game():
     game_graph = Graph()
     #randomisation
     for t in range(8):
-        _town_rng = seed_txt[(0 + t):(3 + t) if 3 + t < 10 else -1] + (seed_txt[0:3 + t - 10] if 3 + t >= 10 else "")
+        _town_rng = seed_txt[(0 + t if 0 + t < 10 else 0 + t - 10):(3 + t) - 10 * int(str(1000 + t)[2]) if 3 + t < 10 or t % 10 < 8 else 10] + (seed_txt[0:3 + t - 10] if 3 + t > 10 and t < 10 else "")
         _town_rng = math.floor(int(_town_rng) * (len(names)/1000))
         town_name = names[int(_town_rng)]
         names.remove(town_name)
@@ -89,7 +89,7 @@ def game():
         storage = game_graph.add_point(storage_name)
         storage_list.append(storage.value)
     for s in storage_list:
-        n = math.floor(int(seed_txt[storage_list.index(s) + 2]) / 5) + 1
+        n = 1
         town_list_copy = town_list[:]
         for town in range(n):
             _idx = math.floor(int(seed_txt[range(n).index(n - 1) + storage_list.index(s):range(n).index(n - 1) + 2 + storage_list.index(s)]) * (len(town_list_copy) / 100))
@@ -98,7 +98,7 @@ def game():
             game_graph.add_edge(s, town)
             connection_list.append([s, town])
     for t in town_list:
-        n = math.floor(int(seed_txt[town_list.index(t)]) / 5) + 1
+        n = math.floor(int(seed_txt[town_list.index(t) % 10]) / 5) + 1
         town_list_copy = town_list[:]
         town_list_copy.remove(t)
         for town in range(n):
@@ -138,8 +138,8 @@ def game():
         print(line)
     _count = 0
 
-    print("Choose 4 towns to view")
-    while _count < 4:
+    print("Choose 5 towns to view")
+    while _count < 5:
         inp = input()
         if inp == "skip":
             break
@@ -187,7 +187,10 @@ def game():
     for el in comparison_list:
         summ += el
     summ -= 4
+    if summ < 0:
+        summ = 0
     print(str(summ) + " points")
+
 
 #graph
 file = open("info.txt", "r")
@@ -207,4 +210,8 @@ for connection in connections:
 print(the_algorythm(towns, gas_storages, connections, town_graph))
 inp  = input()
 if inp == "game":
-    game()
+    while True:
+        game()
+        inp = input()
+        if inp == "exit":
+            break
