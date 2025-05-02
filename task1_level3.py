@@ -4,6 +4,8 @@ import random
 import math
 import copy
 from tkinter import *
+file = open("config.txt", "r")
+names = json.loads(file.readline())
 class Graph():
     """graph def class"""
     def __init__(self):
@@ -65,8 +67,6 @@ def the_algorythm(towns, gas_storages, connections, graph):
 
 def generate_towns(town_num, town_con_max, storage_num, seed_str):
     """generate towns"""
-    file = open("config.txt", "r")
-    names = json.loads(file.readline())
     names_copy = names[:]
     town_list = []
     storage_list = []
@@ -76,8 +76,8 @@ def generate_towns(town_num, town_con_max, storage_num, seed_str):
         if range(town_num).index(t) % 10 <= 7:
             _town_rng = int(seed_str[t % 10:(t % 10 + 3)])
         else:
-            _town_rng = int(seed_str[t % 10:10] + seed_str[0:t + 3 % 10])
-        _town_rng = math.floor(int(_town_rng) * (len(names)/1000))
+            _town_rng = int(seed_str[t % 10:10] + seed_str[0:(t + 3) % 10])
+        _town_rng = math.floor(int(_town_rng) * (len(names_copy)/1000))
         town_name = names_copy[int(_town_rng)]
         names_copy.remove(town_name)
         town = game_graph.add_point(town_name)
@@ -266,10 +266,11 @@ def game():
             print("Current threshold:" + str(min_percent) + "%")
             if (summ / maxx) * 100 >= min_percent:
                 print("You passed!")
-                print(f"Gained {summ} points. Current points:{game_points}")
+                print(f"Gained {summ} points. Current points:{game_points + summ}")
                 level += 1
             else:
                 print("Not enough!")
+                lost = True
         game_points += summ
         wait = input()
     if mode == "rogue":
