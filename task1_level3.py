@@ -3,8 +3,7 @@ import json
 import random
 import math
 import copy
-from tkinter import *
-file = open("config.txt", "r")
+file = open("config.txt", "r", encoding="utf8")
 names = json.loads(file.readline())
 class Graph():
     """graph def class"""
@@ -272,13 +271,13 @@ def game():
                 print("Not enough!")
                 lost = True
         game_points += summ
-        wait = input()
+        _wait = input()
     if mode == "rogue":
         print("Run lost! Score:" + str(game_points))
 
 
 #graph
-file = open("info.txt", "r")
+file = open("info.txt", "r", encoding="utf8")
 towns = json.loads(file.readline().split("\n")[0])
 gas_storages = json.loads(file.readline().split("\n")[0])
 connections = json.loads(file.readline().split("\n")[0])
