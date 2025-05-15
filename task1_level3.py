@@ -3,8 +3,11 @@ import json
 import random
 import math
 import copy
+import pygame_features
+#region LAB
 file = open("config.txt", "r", encoding="utf8")
 names = json.loads(file.readline())
+
 class Graph():
     """graph def class"""
     def __init__(self):
@@ -63,7 +66,8 @@ def the_algorythm(towns, gas_storages, connections, graph):
             for idx in not_found_idx:
                 not_found[idx][1].append(town)
     return not_found
-
+#endregion LAB
+#region Generation
 def generate_towns(town_num, town_con_max, storage_num, seed_str):
     """generate towns"""
     names_copy = names[:]
@@ -157,10 +161,10 @@ def check_max_points(t_list, stor_list, con_list, graph, not_found_list):
             summ += el
         points.append(summ)
     return max(points)
-
-
+#endregion Generation
 def game():
     """func for game"""
+    pygame_features.pygame_window_shenedigans()
     lost = False
     level = 1
     game_points = 0
@@ -274,7 +278,6 @@ def game():
         _wait = input()
     if mode == "rogue":
         print("Run lost! Score:" + str(game_points))
-
 
 #graph
 file = open("info.txt", "r", encoding="utf8")
