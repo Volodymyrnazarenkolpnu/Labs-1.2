@@ -4,6 +4,7 @@ class TrieNode():
     """Node of trie"""
     def __init__(self):
         self.children = [None] * 26
+
         self.leaf = False
 
 class TheTrieItself():
